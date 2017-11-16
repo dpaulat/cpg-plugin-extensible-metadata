@@ -11,9 +11,20 @@
 
 if (!defined('IN_COPPERMINE')) die('Not in Coppermine...');
 
-$name               = $lang_plugin_extensible_metadata['config_name'];
-$description        = $lang_plugin_extensible_metadata['config_description'];
-$author             = 'Dan Paulat <dpaulat@gmail.com>';
-$version            = '0.1';
-$plugin_cpg_version = array('min' => '1.6');
-$config_action      = 'config';
+class ExtensibleMetadata
+{
+    public function __construct()
+    {
+
+    }
+
+    public function help_button($guid)
+    {
+        global $CONFIG;
+        return '&nbsp;<a class="greybox" href="plugins/extensible_metadata/help.php?t=' . $CONFIG['theme'] . '&amp;l=' . $CONFIG['lang']
+            . '&amp;g=' . $guid . '" title="Help"><img src="images/help.gif" width="13" height="11" border="0" alt="" /></a>';
+    }
+}
+
+global $extensible_metadata;
+$extensible_metadata = new ExtensibleMetadata();
