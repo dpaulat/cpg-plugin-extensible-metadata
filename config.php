@@ -11,10 +11,15 @@
 
 if (!defined('IN_COPPERMINE')) die('Not in Coppermine...');
 
+if (!GALLERY_ADMIN_MODE) {
+    cpg_die(ERROR, $lang_errors['access_denied'], __FILE__, __LINE__);
+}
+
 require_once './plugins/extensible_metadata/include/initialize.inc.php';
 
 function xmp_config_form()
 {
+    global $LINEBREAK;
     global $extensible_metadata;
     global $lang_gallery_admin_menu;
     global $lang_plugin_extensible_metadata;
@@ -50,17 +55,19 @@ EOT;
 			{$lang_plugin_extensible_metadata['config_overwrite_sidecar']}
 		</td>
 	</tr>
-	<tr hidden="hidden">
+	<tr>
 		<td class="tableb tableb_alternate">
-		    Images processed: 0<br>
-		    Sidecar files created: 0<br>
-		    Sidecar files skipped: 0<br>
+		    Last refresh: <span id="xmp-last-refresh">Never</span><br><br>
+		    Images processed: <span id="xmp-images-processed">0/0</span><br>
+		    Sidecar files created: <span id="xmp-sidecar-files-created">0</span><br>
+		    Sidecar files skipped: <span id="xmp-sidecar-files-skipped">0</span><br>
+		    <br><div id="xmp-progress-bar" hidden="hidden"><div class="progress-label">Refreshing...</div></div>
         </td>
 	</tr>
 	<tr>
         <td class="tableb">
-            <button type="button">{$reload_icon}{$lang_plugin_extensible_metadata['config_refresh_metadata']}</button>
-            <button type="button" hidden="hidden">{$cancel_icon}{$lang_plugin_extensible_metadata['config_cancel_refresh']}</button>
+            <button type="button" id="xmp-refresh-metadata" onclick="">{$reload_icon}{$lang_plugin_extensible_metadata['config_refresh_metadata']}</button>
+            <button type="button" id="xmp-cancel-refresh" onclick="" disabled="disabled">{$cancel_icon}{$lang_plugin_extensible_metadata['config_cancel_refresh']}</button>
         </td>
 	</tr>
 EOT;
