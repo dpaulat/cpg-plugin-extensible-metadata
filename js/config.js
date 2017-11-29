@@ -22,7 +22,12 @@ $( function() {
 
     xmpRefreshButton.on('click', function() {
         $.ajax({
-            url: 'index.php?file=extensible_metadata/refresh&action=start',
+            url: 'index.php',
+            data: {
+                file:      'extensible_metadata/refresh',
+                action:    'start',
+                overwrite: $('#plugin_extensible_metadata_overwrite')[0].checked
+            },
             cache: false,
             dataType: 'json',
             beforeSend: function() {
@@ -33,7 +38,11 @@ $( function() {
 
     xmpCancelButton.on('click', function() {
         $.ajax({
-            url: 'index.php?file=extensible_metadata/refresh&action=cancel',
+            url: 'index.php',
+            data: {
+                file:   'extensible_metadata/refresh',
+                action: 'cancel'
+            },
             cache: false,
             dataType: 'json',
             success: function(data) {
@@ -77,7 +86,11 @@ $( function() {
 
     function statusTick() {
         $.ajax({
-            url: 'index.php?file=extensible_metadata/refresh&action=status',
+            url: 'index.php',
+            data: {
+                file:   'extensible_metadata/refresh',
+                action: 'status'
+            },
             cache: false,
             dataType: 'json',
             success: function(data) {

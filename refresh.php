@@ -43,6 +43,10 @@ function xmp_refresh()
 function xmp_refresh_start()
 {
     // TODO: Implement
+    $gc = Inspekt::makeGetCage();
+
+    $overwrite = ($gc->getAlpha('overwrite') === 'true');
+
     $data = array(
         'status'       => 'error',
         'error_reason' => 'Not implemented');
@@ -51,16 +55,31 @@ function xmp_refresh_start()
 
 function xmp_refresh_status()
 {
-    // TODO: Implement
-    $data = array(
-        'status'            => 'success',
-        'refresh_status'    => 'in_progress',
-        'last_refresh'      => -1,
-        'images_processed'  => 3,
-        'total_images'      => 10,
-        'xmp_files_created' => 2,
-        'xmp_files_skipped' => 1,
-        'error_reason'      => 'Not implemented');
+    global $CONFIG;
+
+    $result = cpg_db_query("SELECT * FROM {$CONFIG['TABLE_PREFIX']}plugin_xmp_status WHERE id=0");
+    $row = $result->fetchAssoc();
+
+    if ($row !== NULL) {
+        if ($row['refreshing'] === '1') {
+            $refresh_status = 'in_progress';
+        } else {
+            $refresh_status = 'complete';
+        }
+
+        $data = array(
+            'status'            => 'success',
+            'refresh_status'    => $refresh_status,
+            'last_refresh'      => $row['last_refresh'],
+            'images_processed'  => $row['images_processed'],
+            'total_images'      => $row['total_images'],
+            'xmp_files_created' => $row['xmp_files_created'],
+            'xmp_files_skipped' => $row['xmp_files_skipped']);
+    } else {
+        $data = array(
+            'status'       => 'error',
+            'error_reason' => 'Could not read from database');
+    }
     echo json_encode($data);
 }
 

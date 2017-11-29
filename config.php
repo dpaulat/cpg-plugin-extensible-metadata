@@ -45,13 +45,13 @@ EOT;
     $plugin_help = $extensible_metadata->help_button('refresh');
     starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_plugin_extensible_metadata['config_refresh_metadata'] . $plugin_help, 1);
 
-    $option_output['plugin_extensible_metadata_overwrite_sidecar_enabled'] = '';
+    $option_output['plugin_extensible_metadata_overwrite_enabled'] = '';
     $cancel_icon = cpg_fetch_icon('cancel');
     $reload_icon = cpg_fetch_icon('reload');
     echo <<<EOT
 	<tr>
 		<td class="tableb">
-    		<input type="checkbox" name="plugin_extensible_metadata_overwrite_sidecar" id="plugin_extensible_metadata_overwrite_sidecar" class="checkbox" value="1" {$option_output['plugin_extensible_metadata_overwrite_sidecar_enabled']} />
+    		<input type="checkbox" name="plugin_extensible_metadata_overwrite" id="plugin_extensible_metadata_overwrite" class="checkbox" value="1" {$option_output['plugin_extensible_metadata_overwrite_enabled']} />
 			{$lang_plugin_extensible_metadata['config_overwrite_sidecar']}
 		</td>
 	</tr>
