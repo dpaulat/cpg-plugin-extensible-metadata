@@ -42,15 +42,61 @@ function xmp_refresh()
 
 function xmp_refresh_start()
 {
-    // TODO: Implement
+    global $CONFIG;
+
     $gc = Inspekt::makeGetCage();
-
     $overwrite = ($gc->getAlpha('overwrite') === 'true');
+    $table_xmp_status = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_status';
+    $lock = 'plugins/extensible_metadata/.refresh_lock';
 
-    $data = array(
-        'status'       => 'error',
-        'error_reason' => 'Not implemented');
+    $fp = fopen($lock, 'c');
+    if (!flock($fp, LOCK_EX | LOCK_NB)) {
+        fclose($fp);
+        $data = array(
+            'status'       => 'error',
+            'error_reason' => 'Refresh already in progress');
+        echo json_encode($data);
+        return;
+    }
+
+    // TODO: Run in background, and return launch success
+
+    $result = cpg_db_query(
+        "UPDATE {$table_xmp_status}
+         SET `refreshing` = '1',
+             `last_refresh` = NOW()
+         WHERE `id` = b'0'");
+
+    if (!$result) {
+        fclose($fp);
+        $data = array(
+            'status'       => 'error',
+            'error_reason' => 'Database error');
+        echo json_encode($data);
+        return;
+    }
+
+    // TODO: Implement
+    sleep(9);
+
+    $result = cpg_db_query(
+        "UPDATE {$table_xmp_status}
+         SET `refreshing` = '0'
+         WHERE `id` = b'0'");
+
+    if (!$result) {
+        fclose($fp);
+        $data = array(
+            'status'       => 'error',
+            'error_reason' => 'Database error');
+        echo json_encode($data);
+        return;
+    }
+
+    $data = array('status' => 'success');
     echo json_encode($data);
+
+    fclose($fp);
 }
 
 function xmp_refresh_status()

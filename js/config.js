@@ -13,7 +13,9 @@ $( function() {
             xmpProgressLabel.text('Refreshing...');
         },
         change: function() {
-            xmpProgressLabel.text(xmpProgressBar.progressbar('value') + '%');
+            if (xmpProgressBar.progressbar('value') != false) {
+                xmpProgressLabel.text(xmpProgressBar.progressbar('value') + '%');
+            }
         },
         complete: function() {
             xmpProgressLabel.text('Complete!');
