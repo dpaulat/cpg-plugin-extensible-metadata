@@ -16,6 +16,7 @@ if (!GALLERY_ADMIN_MODE) {
 }
 
 require_once './include/inspekt.php';
+require_once './plugins/extensible_metadata/include/xmp_processor.class.php';
 
 function xmp_refresh()
 {
@@ -24,6 +25,10 @@ function xmp_refresh()
     switch ($gc->getAlpha('action')) {
         case 'start':
             xmp_refresh_start();
+            break;
+
+        case 'process':
+            xmp_refresh_process();
             break;
 
         case 'status':
@@ -38,6 +43,45 @@ function xmp_refresh()
             xmp_refresh_default();
             break;
     }
+}
+
+function xmp_refresh_process()
+{
+    global $CONFIG;
+
+    $result = cpg_db_query(
+        "SELECT `filepath`, `filename`
+         FROM {$CONFIG['TABLE_PICTURES']}
+         ORDER BY `pid` ASC
+         LIMIT 0, 100"); // TODO: Range
+
+    if (!$result) {
+        $data = array(
+            'status'       => 'error',
+            'error_reason' => 'Database error');
+        echo json_encode($data);
+        return;
+    }
+
+    while (($row = $result->fetchAssoc()) !== NULL) {
+        $xmp = new XmpProcessor($row['filepath'], $row['filename']);
+
+        if (!$xmp->sidecarExists()) {
+            $xmp->generateSidecar();
+        } else {
+            $xmp->readSidecar();
+        }
+
+        $xmp->parseXML();
+        $nodes = $xmp->getElementText();
+
+    }
+
+    $result->free();
+
+    $data = array('status'  => 'success',
+                  'xmp'     => $nodes);
+    echo json_encode($data);
 }
 
 function xmp_refresh_start()
@@ -78,6 +122,10 @@ function xmp_refresh_start()
 
     // TODO: Implement
     sleep(9);
+
+    $result = cpg_db_query("SELECT COUNT(*) FROM {$CONFIG['TABLE_PICTURES']}");
+    $row = $result->fetchRow(true);
+    $total_images = $row[0];
 
     $result = cpg_db_query(
         "UPDATE {$table_xmp_status}
