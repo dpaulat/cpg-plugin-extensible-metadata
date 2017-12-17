@@ -16,7 +16,7 @@ if (!GALLERY_ADMIN_MODE) {
 }
 
 require_once './include/inspekt.php';
-require_once './plugins/extensible_metadata/include/xmp_processor.class.php';
+require_once './plugins/extensible_metadata/include/initialize.inc.php';
 
 function xmp_refresh()
 {
@@ -48,7 +48,15 @@ function xmp_refresh()
 function xmp_refresh_process()
 {
     global $CONFIG;
+    global $extensible_metadata;
 
+    $xmp_fields = $extensible_metadata->xmp_fields();
+    $new_fields = array();
+
+    $gc = Inspekt::makeGetCage();
+    $overwrite = ($gc->getAlpha('overwrite') === 'true');
+
+    // Get pictures from database
     $result = cpg_db_query(
         "SELECT `filepath`, `filename`
          FROM {$CONFIG['TABLE_PICTURES']}
@@ -63,24 +71,33 @@ function xmp_refresh_process()
         return;
     }
 
+    // Find new fields in XMP metadata
     while (($row = $result->fetchAssoc()) !== NULL) {
-        $xmp = new XmpProcessor($row['filepath'], $row['filename']);
-
-        if (!$xmp->sidecarExists()) {
-            $xmp->generateSidecar();
-        } else {
-            $xmp->readSidecar();
+        $xmp_elements = $extensible_metadata->xmp_elements($row['filepath'], $row['filename'], $overwrite);
+        foreach ($xmp_elements as $key => $value) {
+            if (!$extensible_metadata->has_field($key, $xmp_fields) && !in_array($key, $new_fields)) {
+                $new_fields[] = $key;
+            }
         }
-
-        $xmp->parseXML();
-        $nodes = $xmp->getElementText();
-
     }
-
     $result->free();
 
-    $data = array('status'  => 'success',
-                  'xmp'     => $nodes);
+    // Insert new fields into database
+    $num_fields = count($new_fields);
+    if ($num_fields > 0) {
+        $table_xmp_fields = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_fields';
+        $sql = "INSERT IGNORE INTO {$table_xmp_fields} (`name`) VALUES";
+        for ($i = 0; $i < $num_fields; $i++) {
+            $field = cpg_db_real_escape_string($new_fields[$i]);
+            $sql .= "('{$field}')";
+            if ($i < $num_fields - 1) {
+                $sql .= ",";
+            }
+        }
+        cpg_db_query($sql);
+    }
+
+    $data = array('status' => 'success');
     echo json_encode($data);
 }
 
