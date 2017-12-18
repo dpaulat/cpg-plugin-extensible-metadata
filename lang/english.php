@@ -22,3 +22,4 @@ $lang_plugin_extensible_metadata['config_display_name'] = 'Display Name';
 $lang_plugin_extensible_metadata['config_displayed'] = 'Displayed';
 $lang_plugin_extensible_metadata['config_indexed'] = 'Indexed';
 $lang_plugin_extensible_metadata['config_apply'] = 'Apply';
+$lang_plugin_extensible_metadata['config_delete'] = 'Delete';

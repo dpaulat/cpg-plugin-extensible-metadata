@@ -24,6 +24,11 @@ function xmp_config_form()
     global $lang_gallery_admin_menu;
     global $lang_plugin_extensible_metadata;
 
+    $cancel_icon = cpg_fetch_icon('cancel');
+    $delete_icon = cpg_fetch_icon('delete');
+    $ok_icon = cpg_fetch_icon('ok');
+    $reload_icon = cpg_fetch_icon('reload');
+
     $plugin_help = $extensible_metadata->help_button('config');
     starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_gallery_admin_menu['admin_lnk'] . $plugin_help, 2);
 
@@ -46,8 +51,6 @@ EOT;
     starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_plugin_extensible_metadata['config_refresh_metadata'] . $plugin_help, 1);
 
     $option_output['plugin_extensible_metadata_overwrite_enabled'] = '';
-    $cancel_icon = cpg_fetch_icon('cancel');
-    $reload_icon = cpg_fetch_icon('reload');
     echo <<<EOT
 	<tr>
 		<td class="tableb">
@@ -76,8 +79,15 @@ EOT;
 
     echo '<br>' . $LINEBREAK;
 
+    echo <<<EOT
+	<div class="notification-bar" id="xmp-fields-notification-bar">
+		<img src="images/message/ok.png" width="32" height="32" style="vertical-align: middle;" /> Saved
+	</div>
+EOT;
+
+
     $plugin_help = $extensible_metadata->help_button('xmp_fields');
-    starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_plugin_extensible_metadata['config_xmp_fields'] . $plugin_help, 4);
+    starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_plugin_extensible_metadata['config_xmp_fields'] . $plugin_help, 5);
 
     echo <<<EOT
 	<tr>
@@ -85,6 +95,7 @@ EOT;
 		<th class="tableh2">{$lang_plugin_extensible_metadata['config_display_name']}</th>
 		<th class="tableh2">{$lang_plugin_extensible_metadata['config_displayed']}</th>
 		<th class="tableh2">{$lang_plugin_extensible_metadata['config_indexed']}</th>
+		<th class="tableh2">{$lang_plugin_extensible_metadata['config_delete']}</th>
 	</tr>
 EOT;
 
@@ -112,15 +123,17 @@ EOT;
 			<td class="{$class}" style="text-align: center;">
 				<input type="checkbox" name="indexed" id="indexed" value="{$xmp_field['id']}" {$indexed} />
 			</td>
+			<td class="{$class}" style="text-align: center;">
+				<a href="javascript:void(0);">{$delete_icon}</a>
+			</td>
 		</tr>
 EOT;
     }
-    $ok_icon = cpg_fetch_icon('ok');
     $class = $alternate ? "tableb tableb_alternate" : "tableb";
     echo <<<EOT
 	<tr>
-		<td class = "{$class}" colspan="4">
-			<button type="button" id="xmp-save-fields">{$ok_icon}{$lang_plugin_extensible_metadata['config_apply']}</button>
+		<td class = "{$class}" colspan="5">
+			<button type="button" id="xmp-fields-apply">{$ok_icon}{$lang_plugin_extensible_metadata['config_apply']}</button>
 		</td>
 </td>
 	</tr>

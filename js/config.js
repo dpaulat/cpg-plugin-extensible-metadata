@@ -7,6 +7,11 @@ $( function() {
 
     var statusTimer = null;
 
+    var xmpFieldsApplyButton = $('#xmp-fields-apply');
+    var xmpFieldsNotificationBar = $('#xmp-fields-notification-bar');
+    var xmpFieldsNotificationTimer = null;
+    var xmpFieldsNotificationCounter = 0;
+
     xmpProgressBar.progressbar({
         value: false,
         create: function() {
@@ -54,6 +59,59 @@ $( function() {
             }
         });
     });
+
+    xmpFieldsApplyButton.on('click', function() {
+       xmpFieldsSaved(); // TODO: AJAX save
+    });
+
+    function xmpFieldsSaved() {
+        var fadeTime = 500;
+        var startFadeOut = 2500;
+        var endTime = startFadeOut + fadeTime;
+        var interval = 50;
+        var maxOpacity = 0.8;
+        var startR = 255;
+        var startG = 255;
+        var startB = 255;
+        var targetR = 138;
+        var targetG = 226;
+        var targetB = 52;
+
+        if (xmpFieldsNotificationTimer == null) {
+            xmpFieldsNotificationCounter = 0;
+            xmpFieldsNotificationTimer = setInterval(xmpFieldsSaved, interval);
+        } else {
+            var time = interval * xmpFieldsNotificationCounter;
+            if (time <= fadeTime) {
+                var fade = (time / fadeTime);
+                var opacity = fade * maxOpacity;
+                var r = Math.round(startR - (startR - targetR) * fade);
+                var g = Math.round(startG - (startG - targetG) * fade);
+                var b = Math.round(startB - (startB - targetB) * fade);
+                xmpFieldsNotificationBar.css('display', 'block');
+                xmpFieldsNotificationBar.css('opacity', opacity);
+                xmpFieldsNotificationBar.css('background-color', 'rgb(' + r + ', ' + g + ', ' + b + ')');
+            } else if (time >= startFadeOut && time < endTime) {
+                time -= startFadeOut;
+                var fade = 1 - (time / fadeTime);
+                var opacity = fade * maxOpacity;
+                var r = Math.round(startR - (startR - targetR) * fade);
+                var g = Math.round(startG - (startG - targetG) * fade);
+                var b = Math.round(startB - (startB - targetB) * fade);
+                xmpFieldsNotificationBar.css('display', 'block');
+                xmpFieldsNotificationBar.css('opacity', opacity);
+                xmpFieldsNotificationBar.css('background-color', 'rgb(' + r + ', ' + g + ', ' + b + ')');
+            } else if (time >= endTime) {
+                clearInterval(xmpFieldsNotificationTimer);
+                xmpFieldsNotificationTimer = null;
+                xmpFieldsNotificationBar.css('display', 'none');
+                xmpFieldsNotificationBar.css('opacity', '0');
+                xmpFieldsNotificationBar.css('background-color', 'rgb(' + startR + ', ' + startG + ', ' + startB + ')');
+            }
+        }
+
+        xmpFieldsNotificationCounter++;
+    }
 
     function startRefresh() {
         xmpRefreshButton.attr('disabled', true);
