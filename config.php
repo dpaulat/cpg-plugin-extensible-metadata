@@ -114,17 +114,20 @@ EOT;
 			</td>
 			<td class="{$class}">
 				<div style="width: 100%; display: table;">
-					<input type="text" name="" id="" value="{$display_name}" style="display: table-cell; width: 100%;" />
+					<input type="text" class="xmp-field-display-name" name="xmp-field-display-name[{$xmp_field['id']}]" value="{$display_name}" style="display: table-cell; width: 100%;" />
 				</div>
 			</td>
 			<td class="{$class}" style="text-align: center;">
-				<input type="checkbox" name="displayed" id="displayed" value="{$xmp_field['id']}" {$displayed} />
+				<input type="checkbox" class="xmp-field-displayed" name="xmp-field-displayed[{$xmp_field['id']}]" value="{$xmp_field['id']}" {$displayed} />
 			</td>
 			<td class="{$class}" style="text-align: center;">
-				<input type="checkbox" name="indexed" id="indexed" value="{$xmp_field['id']}" {$indexed} />
+				<input type="checkbox" class="xmp-field-indexed" name="xmp-field-indexed[{$xmp_field['id']}]" value="{$xmp_field['id']}" {$indexed} />
 			</td>
 			<td class="{$class}" style="text-align: center;">
-				<a href="javascript:void(0);">{$delete_icon}</a>
+				<a class="xmp-field-delete" href="javascript:void(0);">
+					<input type="hidden" value="{$xmp_field['id']}" />
+					{$delete_icon}
+				</a>
 			</td>
 		</tr>
 EOT;

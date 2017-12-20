@@ -12,6 +12,8 @@ $( function() {
     var xmpFieldsNotificationTimer = null;
     var xmpFieldsNotificationCounter = 0;
 
+    var xmpFieldDeleteButtons = $('.xmp-field-delete');
+
     xmpProgressBar.progressbar({
         value: false,
         create: function() {
@@ -61,7 +63,32 @@ $( function() {
     });
 
     xmpFieldsApplyButton.on('click', function() {
-       xmpFieldsSaved(); // TODO: AJAX save
+        $.ajax({
+            url: 'index.php?file=extensible_metadata/fields&action=save',
+            type: 'POST',
+            data: {
+                display_name: $('.xmp-field-display-name').serialize(),
+                displayed:    $('.xmp-field-displayed:checked').serialize(),
+                indexed:      $('.xmp-field-indexed:checked').serialize()
+            },
+            cache: false,
+            dataType: 'json',
+            success: function(data) {
+                if (data.status == 'success') {
+                    xmpFieldsSaved();
+                }
+            }
+        });
+    });
+
+    function deleteXmpField(id) {
+        console.log('Delete ' + id);
+    }
+
+    xmpFieldDeleteButtons.each(function() {
+        $(this).click(function() {
+            deleteXmpField($(this).find('input').val());
+        });
     });
 
     function xmpFieldsSaved() {
