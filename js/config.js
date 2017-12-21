@@ -82,7 +82,26 @@ $( function() {
     });
 
     function deleteXmpField(id) {
-        console.log('Delete ' + id);
+        $.ajax({
+            url: 'index.php?file=extensible_metadata/fields&action=delete',
+            type: 'POST',
+            data: {
+                id: id,
+            },
+            cache: false,
+            dataType: 'json',
+            success: function(data) {
+                if (data.status == 'success') {
+                    var deletedRow = $('#xmp-field-row\\[' + id + '\\]');
+                    var nextRow = deletedRow.next();
+                    deletedRow.remove();
+                    while (nextRow.length != 0) {
+                        nextRow.find('td').toggleClass('tableb_alternate');
+                        nextRow = nextRow.next();
+                    }
+                }
+            }
+        })
     }
 
     xmpFieldDeleteButtons.each(function() {

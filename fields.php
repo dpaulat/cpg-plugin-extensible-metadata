@@ -23,6 +23,10 @@ function xmp_fields()
     $gc = Inspekt::makeGetCage();
 
     switch ($gc->getAlpha('action')) {
+        case 'delete':
+            xmp_fields_delete();
+            break;
+
         case 'save':
             xmp_fields_save();
             break;
@@ -31,6 +35,15 @@ function xmp_fields()
             xmp_fields_default();
             break;
     }
+}
+
+function xmp_fields_delete()
+{
+    $data = array(
+        'status'       => 'success',
+        'error_reason' => 'TODO'); // TODO
+
+    echo json_encode($data);
 }
 
 function xmp_fields_save()

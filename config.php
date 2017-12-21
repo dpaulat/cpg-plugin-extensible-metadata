@@ -108,7 +108,7 @@ EOT;
         $displayed = ($xmp_field['displayed'] == 1) ? 'checked="checked"' : '';
         $indexed = ($xmp_field['indexed'] == 1) ? 'checked="checked"' : '';
         echo <<<EOT
-		<tr>
+		<tr id="xmp-field-row[{$xmp_field['id']}]">
 			<td class="{$class}">
 				{$xmp_field['name']}
 			</td>
@@ -135,7 +135,7 @@ EOT;
     $class = $alternate ? "tableb tableb_alternate" : "tableb";
     echo <<<EOT
 	<tr>
-		<td class = "{$class}" colspan="5">
+		<td id="xmp-field-apply-row" class="{$class}" colspan="5">
 			<button type="button" id="xmp-fields-apply">{$ok_icon}{$lang_plugin_extensible_metadata['config_apply']}</button>
 		</td>
 </td>
