@@ -134,8 +134,8 @@ EOT;
     }
     $class = $alternate ? "tableb tableb_alternate" : "tableb";
     echo <<<EOT
-	<tr>
-		<td id="xmp-field-apply-row" class="{$class}" colspan="5">
+	<tr id="xmp-fields-apply-row">
+		<td id="xmp-fields-apply-col" class="{$class}" colspan="5">
 			<button type="button" id="xmp-fields-apply">{$ok_icon}{$lang_plugin_extensible_metadata['config_apply']}</button>
 		</td>
 </td>
