@@ -21,6 +21,7 @@ function xmp_config_form()
 {
     global $LINEBREAK;
     global $extensible_metadata;
+    global $lang_date;
     global $lang_gallery_admin_menu;
     global $lang_plugin_extensible_metadata;
 
@@ -58,6 +59,11 @@ EOT;
     } else {
         $xmp_index_dirty_hidden = '';
     }
+    if ($xmp_status['last_refresh'] === NULL) {
+        $last_refresh = $lang_plugin_extensible_metadata['config_never'];
+    } else {
+        $last_refresh = localised_date($xmp_status['last_refresh_time'], $lang_date['log']);
+    }
     echo <<<EOT
 	<tr>
 		<td class="tableb">
@@ -68,7 +74,7 @@ EOT;
 	<tr>
 		<td class="tableb tableb_alternate">
 		    <div id="xmp-index-dirty" style="color:red;" {$xmp_index_dirty_hidden}>{$lang_plugin_extensible_metadata['config_index_dirty']}<br/><br/></div>
-		    Last refresh: <span id="xmp-last-refresh">Never</span><br/><br/>
+		    Last refresh: <span id="xmp-last-refresh">{$last_refresh}</span><br/><br/>
 		    Images processed: <span id="xmp-images-processed">{$xmp_status['images_processed']}/{$xmp_status['total_images']}</span><br/>
 		    Sidecar files created: <span id="xmp-sidecar-files-created">{$xmp_status['xmp_files_created']}</span><br/>
 		    Sidecar files skipped: <span id="xmp-sidecar-files-skipped">{$xmp_status['xmp_files_skipped']}</span><br/>

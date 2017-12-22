@@ -94,7 +94,7 @@ class ExtensibleMetadata
 
         $table_xmp_status = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_status';
         $result = cpg_db_query(
-            "SELECT *
+            "SELECT *, UNIX_TIMESTAMP(`last_refresh`) AS last_refresh_time
              FROM {$table_xmp_status}");
         return $result->fetchAssoc(true);
     }
