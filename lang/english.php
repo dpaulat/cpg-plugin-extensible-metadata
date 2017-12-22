@@ -23,3 +23,4 @@ $lang_plugin_extensible_metadata['config_displayed'] = 'Displayed';
 $lang_plugin_extensible_metadata['config_indexed'] = 'Indexed';
 $lang_plugin_extensible_metadata['config_apply'] = 'Apply';
 $lang_plugin_extensible_metadata['config_delete'] = 'Delete';
+$lang_plugin_extensible_metadata['config_index_dirty'] = 'Index dirty, refresh needed';

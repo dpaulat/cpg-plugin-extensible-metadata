@@ -86,6 +86,17 @@ class ExtensibleMetadata
 
         return $xmp_fields;
     }
+
+    public function xmp_status()
+    {
+        global $CONFIG;
+
+        $table_xmp_status = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_status';
+        $result = cpg_db_query(
+            "SELECT *
+             FROM {$table_xmp_status}");
+        return $result->fetchAssoc(true);
+    }
 }
 
 global $extensible_metadata;

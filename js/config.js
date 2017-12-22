@@ -78,6 +78,9 @@ $( function() {
             success: function(data) {
                 if (data.status == 'success') {
                     xmpFieldsSaved();
+                    if (data.index_dirty == true) {
+                        $('#xmp-index-dirty').removeAttr('hidden');
+                    }
                 }
             }
         });

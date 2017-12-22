@@ -29,6 +29,8 @@ function xmp_config_form()
     $ok_icon = cpg_fetch_icon('ok');
     $reload_icon = cpg_fetch_icon('reload');
 
+    $xmp_status = $extensible_metadata->xmp_status();
+
     $plugin_help = $extensible_metadata->help_button('config');
     starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_gallery_admin_menu['admin_lnk'] . $plugin_help, 2);
 
@@ -51,6 +53,11 @@ EOT;
     starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_plugin_extensible_metadata['config_refresh_metadata'] . $plugin_help, 1);
 
     $option_output['plugin_extensible_metadata_overwrite_enabled'] = '';
+    if ($xmp_status['index_dirty'] === '0') {
+        $xmp_index_dirty_hidden = 'hidden="hidden"';
+    } else {
+        $xmp_index_dirty_hidden = '';
+    }
     echo <<<EOT
 	<tr>
 		<td class="tableb">
@@ -60,11 +67,12 @@ EOT;
 	</tr>
 	<tr>
 		<td class="tableb tableb_alternate">
-		    Last refresh: <span id="xmp-last-refresh">Never</span><br><br>
-		    Images processed: <span id="xmp-images-processed">0/0</span><br>
-		    Sidecar files created: <span id="xmp-sidecar-files-created">0</span><br>
-		    Sidecar files skipped: <span id="xmp-sidecar-files-skipped">0</span><br>
-		    <br><div id="xmp-progress-bar" hidden="hidden"><div class="progress-label">Refreshing...</div></div>
+		    <div id="xmp-index-dirty" style="color:red;" {$xmp_index_dirty_hidden}>{$lang_plugin_extensible_metadata['config_index_dirty']}<br/><br/></div>
+		    Last refresh: <span id="xmp-last-refresh">Never</span><br/><br/>
+		    Images processed: <span id="xmp-images-processed">{$xmp_status['images_processed']}/{$xmp_status['total_images']}</span><br/>
+		    Sidecar files created: <span id="xmp-sidecar-files-created">{$xmp_status['xmp_files_created']}</span><br/>
+		    Sidecar files skipped: <span id="xmp-sidecar-files-skipped">{$xmp_status['xmp_files_skipped']}</span><br/>
+		    <br/><div id="xmp-progress-bar" hidden="hidden"><div class="progress-label">Refreshing...</div></div>
         </td>
 	</tr>
 	<tr>
