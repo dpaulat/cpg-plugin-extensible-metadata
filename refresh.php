@@ -87,17 +87,37 @@ function xmp_refresh_process()
     if ($num_fields > 0) {
         $table_xmp_fields = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_fields';
         $sql = "INSERT IGNORE INTO {$table_xmp_fields} (`name`) VALUES";
+        $where = "WHERE `name` IN (";
+
         for ($i = 0; $i < $num_fields; $i++) {
             $field = cpg_db_real_escape_string($new_fields[$i]);
             $sql .= "('{$field}')";
+            $where .= "'{$field}'";
             if ($i < $num_fields - 1) {
                 $sql .= ",";
+                $where .= ",";
             }
         }
-        cpg_db_query($sql);
+
+        $where .= ")";
+        $result = cpg_db_query($sql);
     }
 
-    $data = array('status' => 'success');
+    if ($result !== FALSE) {
+        if ($num_fields > 0) {
+            $new_xmp_fields = $extensible_metadata->xmp_fields($where);
+        } else {
+            $new_xmp_fields = array();
+        }
+
+        $data = array(
+            'status'     => 'success',
+            'new_fields' => $new_xmp_fields);
+    } else {
+        $data = array(
+            'status'       => 'error',
+            'error_reason' => 'Database error');
+    }
     echo json_encode($data);
 }
 

@@ -69,7 +69,7 @@ class ExtensibleMetadata
         return $xmp_fields;
     }
 
-    public function xmp_fields()
+    public function xmp_fields($where = '')
     {
         global $CONFIG;
 
@@ -77,6 +77,7 @@ class ExtensibleMetadata
         $result = cpg_db_query(
             "SELECT *
              FROM {$table_xmp_fields}
+             {$where}
              ORDER BY `name` ASC");
         $xmp_fields = array();
         while (($row = $result->fetchAssoc()) !== NULL) {
