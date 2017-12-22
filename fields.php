@@ -39,9 +39,28 @@ function xmp_fields()
 
 function xmp_fields_delete()
 {
-    $data = array(
-        'status'       => 'success',
-        'error_reason' => 'TODO'); // TODO
+    global $CONFIG;
+
+    $pc = Inspekt::makePostCage();
+    $id = $pc->getInt('id');
+
+    if ($id !== false) {
+        $table_xmp_fields = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_fields';
+        $id = cpg_db_real_escape_string($id);
+        $result = cpg_db_query("DELETE FROM {$table_xmp_fields} WHERE `id`='{$id}'");
+
+        if ($result !== false) {
+            $data = array('status' => 'success');
+        } else {
+            $data = array(
+                'status'       => 'error',
+                'error_reason' => 'Database query error');
+        }
+    } else {
+        $data = array(
+            'status'       => 'error',
+            'error_reason' => 'ID not specified');
+    }
 
     echo json_encode($data);
 }
