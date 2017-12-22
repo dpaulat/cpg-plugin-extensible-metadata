@@ -80,7 +80,7 @@ class ExtensibleMetadata
              ORDER BY `name` ASC");
         $xmp_fields = array();
         while (($row = $result->fetchAssoc()) !== NULL) {
-            $xmp_fields[] = $row;
+            $xmp_fields[$row['id']] = $row;
         }
         $result->free();
 
