@@ -121,28 +121,28 @@ $( function() {
         if (xmpFieldsApplyCol.hasClass(altTableClass)) {
             altTableClass = '';
         }
-        var row = '\t\t<tr id="xmp-field-row[' + id + ']">\n' +
-            '\t\t\t<td class="tableb ' + altTableClass + '">\n' +
-            '\t\t\t\t' + name + '\n' +
-            '\t\t\t</td>\n' +
-            '\t\t\t<td class="tableb ' + altTableClass + '">\n' +
-            '\t\t\t\t<div style="width: 100%; display: table;">\n' +
-            '\t\t\t\t\t<input type="text" class="xmp-field-display-name" name="xmp-field-display-name[' + id + ']" value="" style="display: table-cell; width: 100%;" />\n' +
-            '\t\t\t\t</div>\n' +
-            '\t\t\t</td>\n' +
-            '\t\t\t<td class="tableb ' + altTableClass + '" style="text-align: center;">\n' +
-            '\t\t\t\t<input type="checkbox" class="xmp-field-displayed" name="xmp-field-displayed[' + id + ']" value="' + id + '" />\n' +
-            '\t\t\t</td>\n' +
-            '\t\t\t<td class="tableb ' + altTableClass + '" style="text-align: center;">\n' +
-            '\t\t\t\t<input type="checkbox" class="xmp-field-indexed" name="xmp-field-indexed[' + id + ']" value="' + id + '" />\n' +
-            '\t\t\t</td>\n' +
-            '\t\t\t<td class="tableb ' + altTableClass + '" style="text-align: center;">\n' +
-            '\t\t\t\t<a class="xmp-field-delete" id="xmp-field-delete[' + id + ']" href="javascript:void(0);">\n' +
-            '\t\t\t\t\t<input type="hidden" value="' + id + '" />\n' +
-            '\t\t\t\t\t<img src="images/icons/delete.png" border="0" alt="" width="16" height="16" class="icon" />\n' +
-            '\t\t\t\t</a>\n' +
-            '\t\t\t</td>\n' +
-            '\t\t</tr>';
+        var row = '<tr id="xmp-field-row[' + id + ']">' +
+            '<td class="tableb ' + altTableClass + '">' +
+            name +
+            '</td>' +
+            '<td class="tableb ' + altTableClass + '">' +
+            '<div style="width: 100%; display: table;">' +
+            '<input type="text" class="xmp-field-display-name" name="xmp-field-display-name[' + id + ']" value="" style="display: table-cell; width: 100%;" />' +
+            '</div>' +
+            '</td>' +
+            '<td class="tableb ' + altTableClass + '" style="text-align: center;">' +
+            '<input type="checkbox" class="xmp-field-displayed" name="xmp-field-displayed[' + id + ']" value="' + id + '" />' +
+            '</td>' +
+            '<td class="tableb ' + altTableClass + '" style="text-align: center;">' +
+            '<input type="checkbox" class="xmp-field-indexed" name="xmp-field-indexed[' + id + ']" value="' + id + '" />' +
+            '</td>' +
+            '<td class="tableb ' + altTableClass + '" style="text-align: center;">' +
+            '<a class="xmp-field-delete" id="xmp-field-delete[' + id + ']" href="javascript:void(0);">' +
+            '<input type="hidden" value="' + id + '" />' +
+            '<img src="images/icons/delete.png" border="0" alt="" width="16" height="16" class="icon" />' +
+            '</a>' +
+            '</td>' +
+            '</tr>';
         xmpFieldsApplyRow.before(row);
         $('#xmp-field-delete\\[' + id + '\\]').click(function() {
             deleteXmpField(id);
