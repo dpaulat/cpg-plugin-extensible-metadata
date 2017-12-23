@@ -13,6 +13,40 @@ if (!defined('IN_COPPERMINE')) die('Not in Coppermine...');
 
 require_once './plugins/extensible_metadata/include/xmp_processor.class.php';
 
+class XmpProcessPictureParams
+{
+    public $index_dirty;
+    public $overwrite;
+    public $picture;
+    public $xmp_fields;
+
+    public function __construct()
+    {
+        $this->index_dirty = FALSE;
+        $this->overwrite = FALSE;
+        $this->picture = array();
+        $this->xmp_fields = array();
+    }
+}
+
+class XmpProcessPictureOutput
+{
+    public $images_processed;
+    public $new_fields;
+    public $search_insert_values;
+    public $xmp_files_created;
+    public $xmp_files_skipped;
+
+    public function __construct()
+    {
+        $this->new_fields = array();
+        $this->search_insert_values = array();
+        $this->images_processed = 0;
+        $this->xmp_files_created = 0;
+        $this->xmp_files_skipped = 0;
+    }
+}
+
 class ExtensibleMetadata
 {
     public function __construct()
@@ -113,6 +147,104 @@ class ExtensibleMetadata
             "SELECT *, UNIX_TIMESTAMP(`last_refresh`) AS last_refresh_time
              FROM {$table_xmp_status}");
         return $result->fetchAssoc(true);
+    }
+
+    public function process_picture($input, $output)
+    {
+        global $extensible_metadata;
+
+        // Retrieve non-empty XMP elements from image
+        $xmp_elements =
+            $extensible_metadata->xmp_elements(
+                $input->picture['filepath'], $input->picture['filename'], $input->overwrite, $sidecar_generated);
+
+        $pid = cpg_db_real_escape_string($input->picture['pid']);
+
+        foreach ($xmp_elements as $key => $values) {
+
+            // Get field data for current element
+            $xmp_field = $extensible_metadata->get_field($key, $input->xmp_fields);
+
+            if ($xmp_field !== NULL) {
+                // The field exists
+
+                // If the field is indexed, we need to parse search terms
+                if (($sidecar_generated || $input->index_dirty) && $xmp_field['indexed'] === '1') {
+                    $search_terms = array();
+
+                    // Parse each array in the list of values, treating each unique word as an individual search term
+                    foreach ($values as $value) {
+                        $value = cpg_db_real_escape_string($value);
+                        $term_list = explode(' ', $value);
+                        $term_list = array_filter($term_list, 'strlen');
+                        $search_terms = array_merge($search_terms, $term_list);
+                        $search_terms = array_unique($search_terms);
+                    }
+
+                    // Prepare and execute insert query
+                    $id = cpg_db_real_escape_string($xmp_field['id']);
+                    foreach ($search_terms as $term) {
+                        $output->search_insert_values[] = "('{$pid}','{$id}','{$term}')";
+                    }
+                }
+
+            } else if (!in_array($key, $output->new_fields)) {
+                // The field doesn't exist yet
+                // Add it to the new fields array
+                $output->new_fields[] = $key;
+            }
+        }
+
+        $output->images_processed++;
+        if ($sidecar_generated) {
+            $output->xmp_files_created++;
+        } else {
+            $output->xmp_files_skipped++;
+        }
+    }
+
+    function populate_index($search_insert_values)
+    {
+        global $CONFIG;
+
+        if (count($search_insert_values) > 0) {
+            $table_xmp_index = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_index';
+
+            cpg_db_query(
+                "INSERT IGNORE INTO {$table_xmp_index} (`pid`, `field`, `text`)
+                 VALUES " . implode(',', $search_insert_values));
+        }
+    }
+
+    function populate_new_fields($new_fields)
+    {
+        global $CONFIG;
+
+        $num_fields = count($new_fields);
+        if ($num_fields > 0) {
+            $table_xmp_fields = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_fields';
+            $sql = "INSERT IGNORE INTO {$table_xmp_fields} (`name`) VALUES";
+            $where = "WHERE `name` IN (";
+
+            for ($i = 0; $i < $num_fields; $i++) {
+                $field = cpg_db_real_escape_string($new_fields[$i]);
+                $sql .= "('{$field}')";
+                $where .= "'{$field}'";
+                if ($i < $num_fields - 1) {
+                    $sql .= ",";
+                    $where .= ",";
+                }
+            }
+
+            $where .= ")";
+            cpg_db_query($sql);
+
+            $new_xmp_fields = $this->xmp_fields($where);
+        } else {
+            $new_xmp_fields = array();
+        }
+
+        return $new_xmp_fields;
     }
 }
 
