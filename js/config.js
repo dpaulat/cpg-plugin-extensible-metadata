@@ -26,6 +26,10 @@ $( function() {
 
     var xmpRefreshCancelRequested = false;
 
+    var xmpDataImagesProcessed = 0;
+    var xmpDataFilesCreated = 0;
+    var xmpDataFilesSkipped = 0;
+
     xmpProgressBar.progressbar({
         value: false,
         create: function() {
@@ -63,23 +67,27 @@ $( function() {
             },
             success: function(data) {
                 if (data.status == 'success') {
-                    // TODO: Add values, and keep track in local variables
                     if (data.last_refresh) {
                         xmpLastRefreshLabel.text(data.last_refresh);
                     }
-                    if (data.images_processed && data.total_images) {
-                        xmpImagesProcessedLabel.text(data.images_processed + '/' + data.total_images);
+                    if (data.images_processed) {
+                        xmpDataImagesProcessed += data.images_processed;
+                    }
+                    if (data.total_images) {
+                        xmpImagesProcessedLabel.text(xmpDataImagesProcessed + '/' + data.total_images);
                         if (data.total_images > 0) {
-                            var percent_complete = (data.images_processed / data.total_images * 100);
+                            var percent_complete = (xmpDataImagesProcessed / data.total_images * 100);
                             xmpProgressBar.progressbar('value', percent_complete);
                         }
                     }
                     if (data.xmp_files_created) {
-                        xmpSidecarFilesCreatedLabel.text(data.xmp_files_created);
+                        xmpDataFilesCreated += data.xmp_files_created;
                     }
                     if (data.xmp_files_skipped) {
-                        xmpSidecarFilesSkippedLabel.text(data.xmp_files_skipped);
+                        xmpDataFilesSkipped += data.xmp_files_skipped;
                     }
+                    xmpSidecarFilesCreatedLabel.text(xmpDataFilesCreated);
+                    xmpSidecarFilesSkippedLabel.text(xmpDataFilesSkipped);
                     if (data.index_dirty == '0') {
                         xmpIndexDirtyDiv.attr('hidden', true);
                     }
@@ -115,6 +123,10 @@ $( function() {
         xmpSidecarFilesSkippedLabel.text('0');
 
         xmpRefreshCancelRequested = false;
+
+        xmpDataImagesProcessed = 0;
+        xmpDataFilesCreated = 0;
+        xmpDataFilesSkipped = 0;
     }
 
     function finishRefresh(error) {
