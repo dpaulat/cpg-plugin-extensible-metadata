@@ -67,7 +67,7 @@ function xmp_refresh_process()
 
     // Get pictures from database
     $result = cpg_db_query(
-        "SELECT `filepath`, `filename`
+        "SELECT `pid`, `filepath`, `filename`
          FROM {$CONFIG['TABLE_PICTURES']}
          ORDER BY `pid` ASC
          LIMIT {$start}, {$limit}");
@@ -83,8 +83,29 @@ function xmp_refresh_process()
     // Find new fields in XMP metadata
     while (($row = $result->fetchAssoc()) !== NULL) {
         $xmp_elements = $extensible_metadata->xmp_elements($row['filepath'], $row['filename'], $overwrite, $sidecar_generated);
-        foreach ($xmp_elements as $key => $value) {
-            if (!$extensible_metadata->has_field($key, $xmp_fields) && !in_array($key, $new_fields)) {
+        foreach ($xmp_elements as $key => $values) {
+            $xmp_field = $extensible_metadata->get_field($key, $xmp_fields);
+
+            if ($xmp_field !== NULL) {
+                if ($xmp_field['indexed'] === '1') {
+                    $terms = array();
+                    foreach ($values as $value) {
+                        $value = cpg_db_real_escape_string($value);
+                        $term_list = explode(' ', $value);
+                        $term_list = array_filter($term_list, 'strlen');
+                        $terms = array_merge($terms, $term_list);
+                        $terms = array_unique($terms);
+                    }
+                    $id = cpg_db_real_escape_string($xmp_field['id']);
+                    $pid = cpg_db_real_escape_string($row['pid']);
+                    foreach ($terms as $term) {
+                        $insert_values[] = "('{$pid}','{$id}','{$term}')";
+                    }
+                    $table_xmp_index = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_index';
+                    $term_query = "INSERT IGNORE INTO {$table_xmp_index} (`pid`, `field`, `text`) VALUES " . implode(',', $insert_values);
+                    cpg_db_query($term_query);
+                }
+            } else if (!in_array($key, $new_fields)) {
                 $new_fields[] = $key;
             }
         }

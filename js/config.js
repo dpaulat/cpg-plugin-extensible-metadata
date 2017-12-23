@@ -102,6 +102,9 @@ $( function() {
                 } else {
                     finishRefresh(true);
                 }
+            },
+            error: function() {
+                finishRefresh(true);
             }
         });
     }

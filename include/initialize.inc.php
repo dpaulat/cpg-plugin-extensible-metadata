@@ -27,13 +27,13 @@ class ExtensibleMetadata
             . '&amp;g=' . $guid . '" title="Help"><img src="images/help.gif" width="13" height="11" border="0" alt="" /></a>';
     }
 
-    public function has_field($field_name, $xmp_fields) {
+    public function get_field($field_name, $xmp_fields) {
         foreach ($xmp_fields as $xmp_field) {
             if ($xmp_field['name'] == $field_name) {
-                return TRUE;
+                return $xmp_field;
             }
         }
-        return FALSE;
+        return NULL;
     }
 
     public function total_images()
