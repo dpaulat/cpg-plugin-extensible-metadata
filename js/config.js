@@ -83,6 +83,9 @@ $( function() {
                     if (data.index_dirty == '0') {
                         xmpIndexDirtyDiv.attr('hidden', true);
                     }
+                    $.each(data.new_fields, function(index, value) {
+                        addXmpField(value.id, value.name);
+                    });
                     if (data.more_images == true && !xmpRefreshCancelRequested) {
                         processRefresh(page + 1);
                     } else {
