@@ -73,19 +73,24 @@ EOT;
 	</tr>
 	<tr>
 		<td class="tableb tableb_alternate">
-		    <div id="xmp-index-dirty" style="color:red;" {$xmp_index_dirty_hidden}>{$lang_plugin_extensible_metadata['config_index_dirty']}<br/><br/></div>
-		    Last refresh: <span id="xmp-last-refresh">{$last_refresh}</span><br/><br/>
-		    Images processed: <span id="xmp-images-processed">{$xmp_status['images_processed']}/{$xmp_status['total_images']}</span><br/>
-		    Sidecar files created: <span id="xmp-sidecar-files-created">{$xmp_status['xmp_files_created']}</span><br/>
-		    Sidecar files skipped: <span id="xmp-sidecar-files-skipped">{$xmp_status['xmp_files_skipped']}</span><br/>
-		    <br/><div id="xmp-progress-bar" hidden="hidden"><div class="progress-label">Refreshing...</div></div>
-        </td>
+			<div id="xmp-index-dirty" style="color:red;" {$xmp_index_dirty_hidden}>{$lang_plugin_extensible_metadata['config_index_dirty']}<br/><br/></div>
+			<div id="xmp-refresh-error" style="color:red;" hidden="hidden">{$lang_plugin_extensible_metadata['config_refresh_error']}<br/><br/></div>
+			{$lang_plugin_extensible_metadata['config_last_refresh']} <span id="xmp-last-refresh">{$last_refresh}</span>
+			<div id="xmp-refresh-status" hidden="hidden">
+				<br/>
+				{$lang_plugin_extensible_metadata['config_images_processed']} <span id="xmp-images-processed">0</span><br/>
+				{$lang_plugin_extensible_metadata['config_xmp_files_created']} <span id="xmp-sidecar-files-created">0</span><br/>
+				{$lang_plugin_extensible_metadata['config_xmp_files_skipped']} <span id="xmp-sidecar-files-skipped">0</span>
+			</div>
+			<div id="xmp-refresh-spacer" hidden="hidden">&nbsp;</div>
+			<div id="xmp-progress-bar" hidden="hidden"><div class="progress-label">Refreshing...</div></div>
+		</td>
 	</tr>
 	<tr>
-        <td class="tableb">
-            <button type="button" id="xmp-refresh-metadata" onclick="">{$reload_icon}{$lang_plugin_extensible_metadata['config_refresh_metadata']}</button>
-            <button type="button" id="xmp-cancel-refresh" onclick="" disabled="disabled">{$cancel_icon}{$lang_plugin_extensible_metadata['config_cancel_refresh']}</button>
-        </td>
+		<td class="tableb">
+			<button type="button" id="xmp-refresh-metadata" onclick="">{$reload_icon}{$lang_plugin_extensible_metadata['config_refresh_metadata']}</button>
+			<button type="button" id="xmp-cancel-refresh" onclick="" disabled="disabled">{$cancel_icon}{$lang_plugin_extensible_metadata['config_cancel_refresh']}</button>
+		</td>
 	</tr>
 EOT;
 

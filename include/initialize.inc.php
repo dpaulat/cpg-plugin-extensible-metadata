@@ -36,14 +36,30 @@ class ExtensibleMetadata
         return FALSE;
     }
 
-    public function xmp_elements($filepath, $filename, $overwrite)
+    public function total_images()
+    {
+        global $CONFIG;
+
+        $result = cpg_db_query("SELECT COUNT(*) FROM {$CONFIG['TABLE_PICTURES']}");
+        $row = $result->fetchRow(true);
+        if ($row === false) {
+            $total_images = 0;
+        } else {
+            $total_images = $row[0];
+        }
+        return $total_images;
+    }
+
+    public function xmp_elements($filepath, $filename, $overwrite, &$sidecar_generated)
     {
         $xmp = new XmpProcessor($filepath, $filename);
 
         if ($overwrite || !$xmp->sidecarExists()) {
             $xmp->generateSidecar();
+            $sidecar_generated = true;
         } else {
             $xmp->readSidecar();
+            $sidecar_generated = false;
         }
 
         $xmp->parseXML();

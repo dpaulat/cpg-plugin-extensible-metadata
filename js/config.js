@@ -5,7 +5,15 @@ $( function() {
     var xmpRefreshButton = $('#xmp-refresh-metadata');
     var xmpCancelButton = $('#xmp-cancel-refresh');
 
-    var statusTimer = null;
+    var xmpMetadataOverwriteCheckbox = $('#plugin_extensible_metadata_overwrite')[0];
+    var xmpRefreshErrorDiv = $('#xmp-refresh-error');
+    var xmpIndexDirtyDiv = $('#xmp-index-dirty');
+    var xmpRefreshStatusDiv = $('#xmp-refresh-status');
+    var xmpLastRefreshLabel = $('#xmp-last-refresh');
+    var xmpImagesProcessedLabel = $('#xmp-images-processed');
+    var xmpSidecarFilesCreatedLabel = $('#xmp-sidecar-files-created');
+    var xmpSidecarFilesSkippedLabel = $('#xmp-sidecar-files-skipped');
+    var xmpRefreshSpacerDiv = $('#xmp-refresh-spacer');
 
     var xmpFieldsApplyRow = $('#xmp-fields-apply-row');
     var xmpFieldsApplyCol = $('#xmp-fields-apply-col');
@@ -15,6 +23,8 @@ $( function() {
     var xmpFieldsNotificationCounter = 0;
 
     var xmpFieldDeleteButtons = $('.xmp-field-delete');
+
+    var xmpRefreshCancelRequested = false;
 
     xmpProgressBar.progressbar({
         value: false,
@@ -32,36 +42,91 @@ $( function() {
     });
 
     xmpRefreshButton.on('click', function() {
+        processRefresh(0);
+    });
+
+    function processRefresh(page) {
         $.ajax({
             url: 'index.php',
             data: {
                 file:      'extensible_metadata/refresh',
-                action:    'start',
-                overwrite: $('#plugin_extensible_metadata_overwrite')[0].checked
+                action:    'process',
+                overwrite: xmpMetadataOverwriteCheckbox.checked,
+                page:      page
             },
             cache: false,
             dataType: 'json',
             beforeSend: function() {
-                startRefresh();
-            }
-        });
-    });
-
-    xmpCancelButton.on('click', function() {
-        $.ajax({
-            url: 'index.php',
-            data: {
-                file:   'extensible_metadata/refresh',
-                action: 'cancel'
+                if (page == 0) {
+                    startRefresh();
+                }
             },
-            cache: false,
-            dataType: 'json',
             success: function(data) {
                 if (data.status == 'success') {
-                    finishRefresh();
+                    // TODO: Add values, and keep track in local variables
+                    if (data.last_refresh) {
+                        xmpLastRefreshLabel.text(data.last_refresh);
+                    }
+                    if (data.images_processed && data.total_images) {
+                        xmpImagesProcessedLabel.text(data.images_processed + '/' + data.total_images);
+                        if (data.total_images > 0) {
+                            var percent_complete = (data.images_processed / data.total_images * 100);
+                            xmpProgressBar.progressbar('value', percent_complete);
+                        }
+                    }
+                    if (data.xmp_files_created) {
+                        xmpSidecarFilesCreatedLabel.text(data.xmp_files_created);
+                    }
+                    if (data.xmp_files_skipped) {
+                        xmpSidecarFilesSkippedLabel.text(data.xmp_files_skipped);
+                    }
+                    if (data.index_dirty == '0') {
+                        xmpIndexDirtyDiv.attr('hidden', true);
+                    }
+                    if (data.more_images == true && !xmpRefreshCancelRequested) {
+                        processRefresh(page + 1);
+                    } else {
+                        finishRefresh(false);
+                    }
+                } else {
+                    finishRefresh(true);
                 }
             }
         });
+    }
+
+    function startRefresh() {
+        xmpRefreshButton.attr('disabled', true);
+        xmpCancelButton.attr('disabled', false);
+
+        xmpRefreshErrorDiv.attr('hidden', true);
+        xmpRefreshStatusDiv.removeAttr('hidden');
+        xmpRefreshSpacerDiv.removeAttr('hidden');
+
+        xmpProgressLabel.text('Refreshing...');
+        xmpProgressBar.progressbar('value', false);
+        xmpProgressBar.attr('hidden', false);
+
+        xmpImagesProcessedLabel.text('0');
+        xmpSidecarFilesCreatedLabel.text('0');
+        xmpSidecarFilesSkippedLabel.text('0');
+
+        xmpRefreshCancelRequested = false;
+    }
+
+    function finishRefresh(error) {
+        xmpRefreshButton.attr('disabled', false);
+        xmpCancelButton.attr('disabled', true);
+        xmpRefreshSpacerDiv.attr('hidden', true);
+        xmpProgressBar.attr('hidden', true);
+
+        if (error) {
+            xmpRefreshErrorDiv.removeAttr('hidden');
+        }
+    }
+
+    xmpCancelButton.on('click', function() {
+        xmpRefreshCancelRequested = true;
     });
 
     xmpFieldsApplyButton.on('click', function() {
@@ -79,7 +144,7 @@ $( function() {
                 if (data.status == 'success') {
                     xmpFieldsSaved();
                     if (data.index_dirty == true) {
-                        $('#xmp-index-dirty').removeAttr('hidden');
+                        xmpIndexDirtyDiv.removeAttr('hidden');
                     }
                 }
             }
@@ -196,71 +261,5 @@ $( function() {
         }
 
         xmpFieldsNotificationCounter++;
-    }
-
-    function startRefresh() {
-        xmpRefreshButton.attr('disabled', true);
-        xmpCancelButton.attr('disabled', false);
-
-        xmpProgressLabel.text('Refreshing...');
-        xmpProgressBar.progressbar('value', false);
-        xmpProgressBar.attr('hidden', false);
-
-        startTimer();
-    }
-
-    function finishRefresh() {
-        stopTimer();
-        xmpRefreshButton.attr('disabled', false);
-        xmpCancelButton.attr('disabled', true);
-        xmpProgressBar.attr('hidden', true);
-    }
-
-    function startTimer() {
-        if (statusTimer == null) {
-            statusTimer = setInterval(statusTick, 5000);
-        }
-    }
-
-    function stopTimer() {
-        if (statusTimer != null) {
-            clearInterval(statusTimer);
-            statusTimer = null;
-        }
-    }
-
-    function statusTick() {
-        $.ajax({
-            url: 'index.php',
-            data: {
-                file:   'extensible_metadata/refresh',
-                action: 'status'
-            },
-            cache: false,
-            dataType: 'json',
-            success: function(data) {
-                if (data.status == 'success') {
-                    if (data.last_refresh) {
-                        $('#xmp-last-refresh').text(data.last_refresh); // TODO: format time
-                    }
-                    if (data.images_processed && data.total_images) {
-                        $('#xmp-images-processed').text(data.images_processed + '/' + data.total_images);
-                        if (data.total_images > 0) {
-                            var percent_complete = (data.images_processed / data.total_images * 100);
-                            xmpProgressBar.progressbar('value', percent_complete);
-                        }
-                    }
-                    if (data.xmp_files_created) {
-                        $('#xmp-sidecar-files-created').text(data.xmp_files_created);
-                    }
-                    if (data.xmp_files_skipped) {
-                        $('#xmp-sidecar-files-skipped').text(data.xmp_files_skipped);
-                    }
-                    if (data.refresh_status == 'complete') {
-                        finishRefresh();
-                    }
-                }
-            }
-        });
     }
 });

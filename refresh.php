@@ -23,20 +23,8 @@ function xmp_refresh()
     $gc = Inspekt::makeGetCage();
 
     switch ($gc->getAlpha('action')) {
-        case 'start':
-            xmp_refresh_start();
-            break;
-
         case 'process':
             xmp_refresh_process();
-            break;
-
-        case 'status':
-            xmp_refresh_status();
-            break;
-
-        case 'cancel':
-            xmp_refresh_cancel();
             break;
 
         default:
@@ -49,19 +37,40 @@ function xmp_refresh_process()
 {
     global $CONFIG;
     global $extensible_metadata;
+    global $lang_plugin_extensible_metadata;
+    global $lang_date;
 
     $xmp_fields = $extensible_metadata->xmp_fields();
     $new_fields = array();
 
     $gc = Inspekt::makeGetCage();
     $overwrite = ($gc->getAlpha('overwrite') === 'true');
+    $page = $gc->getInt('page');
+    if ($page === false) {
+        $page = 0;
+    }
+    $limit = 100;
+    $start = $page * $limit;
+    $end = $start + $limit;
+    $total_images = $extensible_metadata->total_images();
+    $images_processed = 0;
+    $xmp_files_created = 0;
+    $xmp_files_skipped = 0;
+
+    if ($start >= $total_images) {
+        $data = array(
+            'status'      => 'success',
+            'more_images' => 'false');
+        echo json_encode($data);
+        return;
+    }
 
     // Get pictures from database
     $result = cpg_db_query(
         "SELECT `filepath`, `filename`
          FROM {$CONFIG['TABLE_PICTURES']}
          ORDER BY `pid` ASC
-         LIMIT 0, 100"); // TODO: Range
+         LIMIT {$start}, {$limit}");
 
     if (!$result) {
         $data = array(
@@ -73,11 +82,17 @@ function xmp_refresh_process()
 
     // Find new fields in XMP metadata
     while (($row = $result->fetchAssoc()) !== NULL) {
-        $xmp_elements = $extensible_metadata->xmp_elements($row['filepath'], $row['filename'], $overwrite);
+        $xmp_elements = $extensible_metadata->xmp_elements($row['filepath'], $row['filename'], $overwrite, $sidecar_generated);
         foreach ($xmp_elements as $key => $value) {
             if (!$extensible_metadata->has_field($key, $xmp_fields) && !in_array($key, $new_fields)) {
                 $new_fields[] = $key;
             }
+        }
+        $images_processed++;
+        if ($sidecar_generated) {
+            $xmp_files_created++;
+        } else {
+            $xmp_files_skipped++;
         }
     }
     $result->free();
@@ -100,127 +115,52 @@ function xmp_refresh_process()
         }
 
         $where .= ")";
-        $result = cpg_db_query($sql);
+        cpg_db_query($sql);
     }
 
-    if ($result !== FALSE) {
-        if ($num_fields > 0) {
-            $new_xmp_fields = $extensible_metadata->xmp_fields($where);
-        } else {
-            $new_xmp_fields = array();
-        }
-
-        $data = array(
-            'status'     => 'success',
-            'new_fields' => $new_xmp_fields);
+    if ($num_fields > 0) {
+        $new_xmp_fields = $extensible_metadata->xmp_fields($where);
     } else {
-        $data = array(
-            'status'       => 'error',
-            'error_reason' => 'Database error');
-    }
-    echo json_encode($data);
-}
-
-function xmp_refresh_start()
-{
-    global $CONFIG;
-
-    $gc = Inspekt::makeGetCage();
-    $overwrite = ($gc->getAlpha('overwrite') === 'true');
-    $table_xmp_status = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_status';
-    $lock = 'plugins/extensible_metadata/.refresh_lock';
-
-    $fp = fopen($lock, 'c');
-    if (!flock($fp, LOCK_EX | LOCK_NB)) {
-        fclose($fp);
-        $data = array(
-            'status'       => 'error',
-            'error_reason' => 'Refresh already in progress');
-        echo json_encode($data);
-        return;
+        $new_xmp_fields = array();
     }
 
-    // TODO: Run in background, and return launch success
-
-    $result = cpg_db_query(
-        "UPDATE {$table_xmp_status}
-         SET `refreshing` = '1',
-             `last_refresh` = NOW()
-         WHERE `id` = b'0'");
-
-    if (!$result) {
-        fclose($fp);
-        $data = array(
-            'status'       => 'error',
-            'error_reason' => 'Database error');
-        echo json_encode($data);
-        return;
+    $more_images = ($end < $total_images);
+    if ($more_images === FALSE) {
+        xmp_refresh_end();
     }
 
-    // TODO: Implement
-    sleep(9);
-
-    $result = cpg_db_query("SELECT COUNT(*) FROM {$CONFIG['TABLE_PICTURES']}");
-    $row = $result->fetchRow(true);
-    $total_images = $row[0];
-
-    $result = cpg_db_query(
-        "UPDATE {$table_xmp_status}
-         SET `refreshing` = '0'
-         WHERE `id` = b'0'");
-
-    if (!$result) {
-        fclose($fp);
-        $data = array(
-            'status'       => 'error',
-            'error_reason' => 'Database error');
-        echo json_encode($data);
-        return;
-    }
-
-    $data = array('status' => 'success');
-    echo json_encode($data);
-
-    fclose($fp);
-}
-
-function xmp_refresh_status()
-{
-    global $CONFIG;
-
-    $result = cpg_db_query("SELECT * FROM {$CONFIG['TABLE_PREFIX']}plugin_xmp_status WHERE id=0");
-    $row = $result->fetchAssoc();
-
-    if ($row !== NULL) {
-        if ($row['refreshing'] === '1') {
-            $refresh_status = 'in_progress';
-        } else {
-            $refresh_status = 'complete';
-        }
-
-        $data = array(
-            'status'            => 'success',
-            'refresh_status'    => $refresh_status,
-            'last_refresh'      => $row['last_refresh'],
-            'images_processed'  => $row['images_processed'],
-            'total_images'      => $row['total_images'],
-            'xmp_files_created' => $row['xmp_files_created'],
-            'xmp_files_skipped' => $row['xmp_files_skipped']);
+    $xmp_status = $extensible_metadata->xmp_status();
+    if ($xmp_status['last_refresh'] === NULL) {
+        $last_refresh = $lang_plugin_extensible_metadata['config_never'];
     } else {
-        $data = array(
-            'status'       => 'error',
-            'error_reason' => 'Could not read from database');
+        $last_refresh = localised_date($xmp_status['last_refresh_time'], $lang_date['log']);
     }
-    echo json_encode($data);
-}
 
-function xmp_refresh_cancel()
-{
-    // TODO: Implement
     $data = array(
-        'status'       => 'success',
-        'error_reason' => 'Not implemented');
+        'status'            => 'success',
+        'new_fields'        => $new_xmp_fields,
+        'images_processed'  => $images_processed,
+        'total_images'      => $total_images,
+        'xmp_files_created' => $xmp_files_created,
+        'xmp_files_skipped' => $xmp_files_skipped,
+        'last_refresh'      => $last_refresh,
+        'index_dirty'       => $xmp_status['index_dirty'],
+        'more_images'       => $more_images);
+
     echo json_encode($data);
+}
+
+function xmp_refresh_end()
+{
+    global $CONFIG;
+
+    $table_xmp_status = $CONFIG['TABLE_PREFIX'] . 'plugin_xmp_status';
+
+    cpg_db_query(
+        "UPDATE {$table_xmp_status}
+         SET `last_refresh` = NOW(),
+             `index_dirty` = '0'
+         WHERE `id` = b'0'");
 }
 
 function xmp_refresh_default()
