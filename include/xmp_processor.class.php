@@ -80,7 +80,7 @@ class XmpProcessor
         $value = trim($xml->__toString());
         if (!empty($value)) {
             $key = $ns . ':' . $xml->getName();
-            if (!in_array($value, $nodes[$key])) {
+            if (!array_key_exists($key, $nodes) || !in_array($value, $nodes[$key])) {
                 $nodes[$key][] = $value;
             }
         }
