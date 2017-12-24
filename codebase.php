@@ -99,6 +99,34 @@ function xmp_file_info($info)
 
 function xmp_search_form($text)
 {
+    global $lang_plugin_extensible_metadata;
+
+    // Search for the keyword checkbox
+    $offset = strpos($text, 'id="keywords"');
+    if ($offset === FALSE) {
+        return $text;
+    }
+
+    // Search for the end of the keyword row
+    $offset = strpos($text, '</tr>', $offset);
+    if ($offset === FALSE) {
+        return $text;
+    }
+
+    // Define the metadata checkbox
+    $start = $offset + 5;
+    $length = 0;
+    $row = <<<EOT
+
+                                        <tr>
+                                                <td><input type="checkbox" name="xmp" id="xmp" class="checkbox" checked="checked" /><label for="xmp" class="clickable_option">{$lang_plugin_extensible_metadata['search_metadata']}</label></td>
+                                                <td>&nbsp;</td>
+                                        </tr>
+EOT;
+
+    // Insert the metadata checkbox
+    $text = substr_replace($text, $row, $start, $length);
+
     return $text;
 }
 
