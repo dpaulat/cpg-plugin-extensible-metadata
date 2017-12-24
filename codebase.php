@@ -20,8 +20,12 @@ $thisplugin->add_action('after_delete_file', 'xmp_file_delete');
 
 $thisplugin->add_filter('page_meta', 'xmp_page_meta');
 $thisplugin->add_filter('file_info', 'xmp_file_info');
+$thisplugin->add_filter('custom_search_params_allowed', 'xmp_custom_search_params_allowed');
+$thisplugin->add_filter('custom_search_param', 'xmp_custom_search_param');
+$thisplugin->add_filter('custom_search_query_join', 'xmp_custom_search_query_join');
 $thisplugin->add_filter('search_form', 'xmp_search_form');
-$thisplugin->add_filter('thumb_caption_search', 'xmp_search_results');
+
+$xmp_search_num_joins = 0;
 
 function xmp_plugin_id()
 {
@@ -139,7 +143,50 @@ EOT;
     return $text;
 }
 
-function xmp_search_results($rowset)
+function xmp_custom_search_params_allowed($allowed)
 {
-    return $rowset;
+    global $cpg_udb;
+    if ($cpg_udb->can_join_tables) {
+        $allowed[] = 'xmp';
+    }
+    return $allowed;
+}
+
+function xmp_custom_search_param($value)
+{
+    global $xmp_search_num_joins;
+    global $cpg_udb;
+
+    if ($cpg_udb->can_join_tables) {
+        $fields = $value[0];
+        $param = $value[1];
+        $search = $value[2];
+        $type = $value[3];
+
+        if ($param === 'xmp') {
+            if ($type == 'AND') {
+                $xmp_search_num_joins++;
+            } else {
+                $xmp_search_num_joins = 1;
+            }
+            $table = "t{$xmp_search_num_joins}";
+            $fields[] = "{$table}.text {$search}";
+        }
+    }
+
+    return array($fields);
+}
+
+function xmp_custom_search_query_join($join)
+{
+    global $CONFIG;
+    global $xmp_search_num_joins;
+
+    $table_xmp_index = "{$CONFIG['TABLE_PREFIX']}plugin_xmp_index";
+
+    for ($i = 1; $i <= $xmp_search_num_joins; $i++) {
+        $join .= " LEFT JOIN $table_xmp_index AS t{$i} ON t{$i}.pid = p.pid ";
+    }
+
+    return $join;
 }
