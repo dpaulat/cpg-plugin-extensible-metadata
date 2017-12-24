@@ -15,6 +15,8 @@ require_once './include/inspekt.php';
 require_once './plugins/extensible_metadata/include/initialize.inc.php';
 
 $thisplugin->add_action('page_start', 'xmp_page_start');
+$thisplugin->add_action('add_file_data_success', 'xmp_file_upload');
+$thisplugin->add_action('after_delete_file', 'xmp_file_delete');
 
 $thisplugin->add_filter('page_meta', 'xmp_page_meta');
 $thisplugin->add_filter('file_info', 'xmp_file_info');
@@ -47,6 +49,13 @@ function xmp_page_start()
         $JS['includes'][] = 'plugins/extensible_metadata/js/config.js';
     }
 }
+
+function xmp_file_upload($current_pic_data)
+{
+    return $current_pic_data;
+}
+
+function xmp_file_delete($pic) { }
 
 function xmp_page_meta($var)
 {
