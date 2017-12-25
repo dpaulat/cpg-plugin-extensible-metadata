@@ -18,7 +18,7 @@ class XmpProcessor
     private $imagePath;
     private $sidecarPath;
     private $data = null;
-    private $xml = null;
+    private $xml = FALSE;
     private $xmlns = null;
 
     public function __construct($filepath, $filename)
@@ -70,14 +70,18 @@ class XmpProcessor
     public function parseXML()
     {
         $this->xml = simplexml_load_string($this->data);
-        $this->xmlns = $this->xml->getNamespaces(true);
+        if ($this->xml !== FALSE) {
+            $this->xmlns = $this->xml->getNamespaces(true);
+        }
         return $this->xml;
     }
 
     public function getElementText()
     {
         $nodes = array();
-        $this->walkElements($nodes, $this->xml, 'x');
+        if ($this->xml !== FALSE) {
+            $this->walkElements($nodes, $this->xml, 'x');
+        }
         return $nodes;
     }
 
