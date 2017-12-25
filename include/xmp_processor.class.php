@@ -60,6 +60,13 @@ class XmpProcessor
         return $this->data;
     }
 
+    public function deleteSidecar()
+    {
+        if ($this->sidecarExists()) {
+            unlink($this->sidecarPath);
+        }
+    }
+
     public function parseXML()
     {
         $this->xml = simplexml_load_string($this->data);

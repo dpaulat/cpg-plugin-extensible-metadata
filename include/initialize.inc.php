@@ -202,6 +202,18 @@ class ExtensibleMetadata
         }
     }
 
+    function process_delete($pic)
+    {
+        // Delete XMP file
+        $xmp = new XmpProcessor($pic['filepath'], $pic['filename']);
+        if ($xmp->sidecarExists()) {
+            $xmp->deleteSidecar();
+        }
+
+        // Delete from index
+        cpg_db_query("DELETE FROM `cpg16x_plugin_xmp_index` WHERE `pid` = '{$pic['pid']}'");
+    }
+
     function populate_index($search_insert_values)
     {
         global $CONFIG;

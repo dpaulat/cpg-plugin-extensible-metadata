@@ -56,10 +56,29 @@ function xmp_page_start()
 
 function xmp_file_upload($current_pic_data)
 {
+    global $extensible_metadata;
+
+    $input = new XmpProcessPictureParams();
+    $output = new XmpProcessPictureOutput();
+
+    $input->picture = $current_pic_data;
+    $input->xmp_fields = $extensible_metadata->xmp_fields();
+
+    $extensible_metadata->process_picture($input, $output);
+    $extensible_metadata->populate_new_fields($output->new_fields);
+    $extensible_metadata->populate_index($output->search_insert_values);
+
     return $current_pic_data;
 }
 
-function xmp_file_delete($pic) { }
+function xmp_file_delete($pic)
+{
+    global $extensible_metadata;
+
+    $extensible_metadata->process_delete($pic);
+
+    return $pic;
+}
 
 function xmp_page_meta($var)
 {
