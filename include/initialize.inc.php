@@ -172,13 +172,12 @@ class ExtensibleMetadata
                 if (($sidecar_generated || $input->index_dirty) && $xmp_field['indexed'] === '1') {
                     $search_terms = array();
 
-                    // Parse each array in the list of values, treating each unique word as an individual search term
+                    // Parse each array in the list of values, adding each value to the index
                     foreach ($values as $value) {
                         $value = cpg_db_real_escape_string($value);
-                        $term_list = explode(' ', $value);
-                        $term_list = array_filter($term_list, 'strlen');
-                        $search_terms = array_merge($search_terms, $term_list);
-                        $search_terms = array_unique($search_terms);
+                        if (!empty($value) && !in_array($value, $search_terms)) {
+                            $search_terms[] = $value;
+                        }
                     }
 
                     // Prepare and execute insert query
