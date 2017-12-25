@@ -24,6 +24,7 @@ $( function() {
 
     var xmpFieldDeleteButtons = $('.xmp-field-delete');
 
+    var xmpRefreshInProgress = false;
     var xmpRefreshCancelRequested = false;
 
     var xmpDataImagesProcessed = 0;
@@ -46,7 +47,9 @@ $( function() {
     });
 
     xmpRefreshButton.on('click', function() {
-        processRefresh(0);
+        if (!xmpRefreshInProgress) {
+            processRefresh(0);
+        }
     });
 
     function processRefresh(page) {
@@ -110,9 +113,6 @@ $( function() {
     }
 
     function startRefresh() {
-        xmpRefreshButton.attr('disabled', true);
-        xmpCancelButton.attr('disabled', false);
-
         xmpRefreshErrorDiv.attr('hidden', true);
         xmpRefreshStatusDiv.removeAttr('hidden');
         xmpRefreshSpacerDiv.removeAttr('hidden');
@@ -125,6 +125,7 @@ $( function() {
         xmpSidecarFilesCreatedLabel.text('0');
         xmpSidecarFilesSkippedLabel.text('0');
 
+        xmpRefreshInProgress = true;
         xmpRefreshCancelRequested = false;
 
         xmpDataImagesProcessed = 0;
@@ -133,10 +134,10 @@ $( function() {
     }
 
     function finishRefresh(error) {
-        xmpRefreshButton.attr('disabled', false);
-        xmpCancelButton.attr('disabled', true);
         xmpRefreshSpacerDiv.attr('hidden', true);
         xmpProgressBar.attr('hidden', true);
+
+        xmpRefreshInProgress = false;
 
         if (error) {
             xmpRefreshErrorDiv.removeAttr('hidden');
@@ -144,7 +145,9 @@ $( function() {
     }
 
     xmpCancelButton.on('click', function() {
-        xmpRefreshCancelRequested = true;
+        if (xmpRefreshInProgress) {
+            xmpRefreshCancelRequested = true;
+        }
     });
 
     xmpFieldsApplyButton.on('click', function() {

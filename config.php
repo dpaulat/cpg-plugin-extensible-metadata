@@ -32,24 +32,6 @@ function xmp_config_form()
 
     $xmp_status = $extensible_metadata->xmp_status();
 
-    $plugin_help = $extensible_metadata->help_button('config');
-    starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_gallery_admin_menu['admin_lnk'] . $plugin_help, 2);
-
-    echo <<<EOT
-	<tr>
-		<td class="tableb" width="50%">
-			Column 1
-		</td>
-		<td class="tableb">
-			Column 2
-		</td>
-	</tr>
-EOT;
-
-    endtable();
-
-    echo '<br>' . $LINEBREAK;
-
     $plugin_help = $extensible_metadata->help_button('refresh');
     starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_plugin_extensible_metadata['config_refresh_metadata'] . $plugin_help, 1);
 
@@ -88,8 +70,15 @@ EOT;
 	</tr>
 	<tr>
 		<td class="tableb">
-			<button type="button" id="xmp-refresh-metadata" onclick="">{$reload_icon}{$lang_plugin_extensible_metadata['config_refresh_metadata']}</button>
-			<button type="button" id="xmp-cancel-refresh" onclick="" disabled="disabled">{$cancel_icon}{$lang_plugin_extensible_metadata['config_cancel_refresh']}</button>
+			<div class="buttonlist right">
+				<ul>
+					<li>
+						<a id="xmp-refresh-metadata" onclick=""><span>{$reload_icon}{$lang_plugin_extensible_metadata['config_refresh_metadata']}</span></a>
+					</li><li>
+						<a id="xmp-cancel-refresh" onclick=""><span>{$cancel_icon}{$lang_plugin_extensible_metadata['config_cancel_refresh']}</span></a>
+					</li>
+				</ul>
+			</div>
 		</td>
 	</tr>
 EOT;
@@ -133,7 +122,7 @@ EOT;
 			</td>
 			<td class="{$class}">
 				<div style="width: 100%; display: table;">
-					<input type="text" class="xmp-field-display-name" name="xmp-field-display-name[{$xmp_field['id']}]" value="{$display_name}" style="display: table-cell; width: 100%;" />
+					<input type="text" class="xmp-field-display-name textinput" name="xmp-field-display-name[{$xmp_field['id']}]" value="{$display_name}" style="display: table-cell; width: 100%;" />
 				</div>
 			</td>
 			<td class="{$class}" style="text-align: center;">
@@ -155,7 +144,11 @@ EOT;
     echo <<<EOT
 	<tr id="xmp-fields-apply-row">
 		<td id="xmp-fields-apply-col" class="{$class}" colspan="5">
-			<button type="button" id="xmp-fields-apply">{$ok_icon}{$lang_plugin_extensible_metadata['config_apply']}</button>
+			<div class="buttonlist">
+				<ul><li>
+					<a id="xmp-fields-apply"><span>{$ok_icon}{$lang_plugin_extensible_metadata['config_apply']}</span></a>
+				</li></ul>
+			</div>
 		</td>
 </td>
 	</tr>
