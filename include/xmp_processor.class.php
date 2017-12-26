@@ -17,6 +17,9 @@ class XmpProcessor
 
     private $imagePath;
     private $sidecarPath;
+    private $data = null;
+    private $xml = FALSE;
+    private $xmlns = null;
 
     public function __construct($filepath, $filename)
     {
@@ -38,22 +41,67 @@ class XmpProcessor
 
     public function generateSidecar($overwrite = false)
     {
-        $data = null;
+        $this->data = null;
 
         if (($overwrite || !$this->sidecarExists()) && $this->imageExists()) {
-            $data = $this->getBasicXmpData($this->imagePath);
+            $this->data = $this->getBasicXmpData($this->imagePath);
 
-            if ($data !== false) {
-                $this->writeSidecar($data);
+            if ($this->data !== false) {
+                $this->writeSidecar($this->data);
             }
         }
 
-        return $data;
+        return $this->data;
     }
 
     public function readSidecar()
     {
-        return file_get_contents($this->sidecarPath);
+        $this->data = file_get_contents($this->sidecarPath);
+        return $this->data;
+    }
+
+    public function deleteSidecar()
+    {
+        if ($this->sidecarExists()) {
+            unlink($this->sidecarPath);
+        }
+    }
+
+    public function parseXML()
+    {
+        $this->xml = simplexml_load_string($this->data);
+        if ($this->xml !== FALSE) {
+            $this->xmlns = $this->xml->getNamespaces(true);
+        }
+        return $this->xml;
+    }
+
+    public function getElementText()
+    {
+        $nodes = array();
+        if ($this->xml !== FALSE) {
+            $this->walkElements($nodes, $this->xml, 'x');
+        }
+        return $nodes;
+    }
+
+    private function walkElements(&$nodes, $xml, $ns)
+    {
+        // Is the value of the current XML element not empty?
+        $value = trim($xml->__toString());
+        if (!empty($value)) {
+            $key = $ns . ':' . $xml->getName();
+            if (!array_key_exists($key, $nodes) || !in_array($value, $nodes[$key])) {
+                $nodes[$key][] = $value;
+            }
+        }
+
+        // Walk the children
+        foreach ($this->xmlns as $key => $uri) {
+            foreach ($xml->children($key, true) as $child) {
+                $this->walkElements($nodes, $child, $key);
+            }
+        }
     }
 
     private function writeSidecar($data)
