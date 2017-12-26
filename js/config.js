@@ -34,7 +34,7 @@ $( function() {
     xmpProgressBar.progressbar({
         value: false,
         create: function() {
-            xmpProgressLabel.text('Refreshing...');
+            xmpProgressLabel.text(js_vars.lang_xmp_refreshing);
         },
         change: function() {
             if (xmpProgressBar.progressbar('value') != false) {
@@ -152,7 +152,7 @@ $( function() {
 
     xmpFieldTable.find('td:first').prepend(
         '<div class="notification-bar" id="xmp-fields-notification-bar">' +
-        '<img src="images/icons/ok.png" width="16" height="16" style="vertical-align: bottom;">Saved' +
+        '<img src="images/icons/ok.png" width="16" height="16" style="vertical-align: bottom;">' + js_vars.lang_xmp_saved +
         '</div>');
     var xmpFieldsNotificationBar = xmpFieldTable.find('#xmp-fields-notification-bar');
 

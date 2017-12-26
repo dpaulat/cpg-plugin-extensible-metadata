@@ -30,5 +30,7 @@ $lang_plugin_extensible_metadata['config_last_refresh'] = 'Last refresh:';
 $lang_plugin_extensible_metadata['config_images_processed'] = 'Images processed:';
 $lang_plugin_extensible_metadata['config_xmp_files_created'] = 'Sidecar files created:';
 $lang_plugin_extensible_metadata['config_xmp_files_skipped'] = 'Sidecar files skipped:';
+$lang_plugin_extensible_metadata['config_refreshing'] = 'Refreshing...';
+$lang_plugin_extensible_metadata['config_saved'] = 'Saved';
 
 $lang_plugin_extensible_metadata['search_metadata'] = 'Metadata';

@@ -42,6 +42,7 @@ function xmp_page_start()
 {
     global $CPG_PHP_SELF;
     global $JS;
+    global $lang_plugin_extensible_metadata;
 
     $gc = Inspekt::makeGetCage();
 
@@ -49,6 +50,9 @@ function xmp_page_start()
     $p = $gc->getInt('p');
 
     if ($script === 'pluginmgr.php' && $p == xmp_plugin_id()) {
+        $JS['vars']['lang_xmp_refreshing'] = $lang_plugin_extensible_metadata['config_refreshing'];
+        $JS['vars']['lang_xmp_saved'] = $lang_plugin_extensible_metadata['config_saved'];
+
         $JS['includes'][] = '//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js';
         $JS['includes'][] = 'plugins/extensible_metadata/js/config.js';
     }

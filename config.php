@@ -65,7 +65,7 @@ function xmp_config_form()
 				{$lang_plugin_extensible_metadata['config_xmp_files_skipped']} <span id="xmp-sidecar-files-skipped">0</span>
 			</div>
 			<div id="xmp-refresh-spacer" hidden="hidden">&nbsp;</div>
-			<div id="xmp-progress-bar" hidden="hidden"><div class="progress-label">Refreshing...</div></div>
+			<div id="xmp-progress-bar" hidden="hidden"><div class="progress-label">{$lang_plugin_extensible_metadata['config_refreshing']}</div></div>
 		</td>
 	</tr>
 	<tr>
