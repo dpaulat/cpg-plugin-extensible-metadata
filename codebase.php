@@ -124,7 +124,6 @@ function xmp_page_start()
         $JS['vars']['lang_xmp_refreshing'] = $lang_plugin_extensible_metadata['config_refreshing'];
         $JS['vars']['lang_xmp_saved'] = $lang_plugin_extensible_metadata['config_saved'];
 
-        $JS['includes'][] = '//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js';
         $JS['includes'][] = 'plugins/extensible_metadata/js/config.js';
     }
 }
@@ -158,7 +157,6 @@ function xmp_file_delete($pic)
 function xmp_page_meta($var)
 {
     global $LINEBREAK;
-    $var = '<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" type="text/css" />' . $LINEBREAK . $var;
     $var = $var . $LINEBREAK . '<link rel="stylesheet" href="plugins/extensible_metadata/css/config.css" type="text/css" />';
     return $var;
 }
