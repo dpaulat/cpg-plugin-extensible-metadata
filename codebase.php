@@ -14,6 +14,9 @@ if (!defined('IN_COPPERMINE')) die('Not in Coppermine...');
 require_once './include/inspekt.php';
 require_once './plugins/extensible_metadata/include/initialize.inc.php';
 
+$thisplugin->add_action('plugin_install', 'xmp_plugin_install');
+$thisplugin->add_action('plugin_uninstall', 'xmp_plugin_uninstall');
+
 $thisplugin->add_action('page_start', 'xmp_page_start');
 $thisplugin->add_action('add_file_data_success', 'xmp_file_upload');
 $thisplugin->add_action('after_delete_file', 'xmp_file_delete');
@@ -26,6 +29,74 @@ $thisplugin->add_filter('custom_search_query_join', 'xmp_custom_search_query_joi
 $thisplugin->add_filter('search_form', 'xmp_search_form');
 
 $xmp_search_num_joins = 0;
+
+function xmp_plugin_install()
+{
+    global $CONFIG;
+
+    // Create field table
+    $result = cpg_db_query(
+        "CREATE TABLE IF NOT EXISTS `{$CONFIG['TABLE_PREFIX']}plugin_xmp_fields` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `name` varchar(255) NOT NULL,
+            `display_name` varchar(255) DEFAULT NULL,
+            `displayed` tinyint(1) NOT NULL DEFAULT '0',
+            `indexed` tinyint(1) NOT NULL DEFAULT '0',
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `field` (`name`)
+         ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1");
+    if ($result === FALSE) {
+        return FALSE;
+    }
+
+    // Create index table
+    $result = cpg_db_query(
+        "CREATE TABLE IF NOT EXISTS `{$CONFIG['TABLE_PREFIX']}plugin_xmp_index` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `pid` int(11) NOT NULL,
+            `field` int(11) NOT NULL,
+            `text` varchar(255) NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `pid_field_text` (`pid`,`field`,`text`) USING BTREE
+         ) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1");
+    if ($result === FALSE) {
+        return FALSE;
+    }
+
+    // Create status table
+    $result = cpg_db_query(
+        "CREATE TABLE IF NOT EXISTS `{$CONFIG['TABLE_PREFIX']}plugin_xmp_status` (
+            `id` bit(1) NOT NULL DEFAULT b'0',
+            `last_refresh` datetime DEFAULT NULL,
+            `index_dirty` tinyint(1) NOT NULL DEFAULT '0',
+            PRIMARY KEY (`id`)
+         ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+    if ($result === FALSE) {
+        return FALSE;
+    }
+
+    // Populate default status
+    $result = cpg_db_query(
+        "INSERT IGNORE INTO `cpg16x_plugin_xmp_status`
+            (`id`, `last_refresh`, `index_dirty`)
+         VALUES (b'0', NULL, 0)");
+    if ($result === FALSE) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+function xmp_plugin_uninstall()
+{
+    global $CONFIG;
+
+    cpg_db_query("DROP TABLE IF EXISTS `{$CONFIG['TABLE_PREFIX']}plugin_xmp_fields`");
+    cpg_db_query("DROP TABLE IF EXISTS `{$CONFIG['TABLE_PREFIX']}plugin_xmp_index`");
+    cpg_db_query("DROP TABLE IF EXISTS `{$CONFIG['TABLE_PREFIX']}plugin_xmp_status`");
+
+    return TRUE;
+}
 
 function xmp_plugin_id()
 {
