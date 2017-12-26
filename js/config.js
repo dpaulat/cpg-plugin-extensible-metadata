@@ -15,10 +15,10 @@ $( function() {
     var xmpSidecarFilesSkippedLabel = $('#xmp-sidecar-files-skipped');
     var xmpRefreshSpacerDiv = $('#xmp-refresh-spacer');
 
+    var xmpFieldTable = $('.xmp-field-table');
     var xmpFieldsApplyRow = $('#xmp-fields-apply-row');
     var xmpFieldsApplyCol = $('#xmp-fields-apply-col');
     var xmpFieldsApplyButton = $('#xmp-fields-apply');
-    var xmpFieldsNotificationBar = $('#xmp-fields-notification-bar');
     var xmpFieldsNotificationTimer = null;
     var xmpFieldsNotificationCounter = 0;
 
@@ -150,6 +150,12 @@ $( function() {
         }
     });
 
+    xmpFieldTable.find('td:first').prepend(
+        '<div class="notification-bar" id="xmp-fields-notification-bar">' +
+        '<img src="images/icons/ok.png" width="16" height="16" style="vertical-align: bottom;">Saved' +
+        '</div>');
+    var xmpFieldsNotificationBar = xmpFieldTable.find('#xmp-fields-notification-bar');
+
     xmpFieldsApplyButton.on('click', function() {
         $.ajax({
             url: 'index.php?file=extensible_metadata/fields&action=save',
@@ -244,9 +250,9 @@ $( function() {
         var startR = 255;
         var startG = 255;
         var startB = 255;
-        var targetR = 138;
-        var targetG = 226;
-        var targetB = 52;
+        var targetR = 0;
+        var targetG = 128;
+        var targetB = 0;
 
         if (xmpFieldsNotificationTimer == null) {
             xmpFieldsNotificationCounter = 0;

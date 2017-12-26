@@ -87,15 +87,8 @@ EOT;
 
     echo '<br>' . $LINEBREAK;
 
-    echo <<<EOT
-	<div class="notification-bar" id="xmp-fields-notification-bar">
-		<img src="images/message/ok.png" width="32" height="32" style="vertical-align: middle;" /> Saved
-	</div>
-EOT;
-
-
     $plugin_help = $extensible_metadata->help_button('xmp_fields');
-    starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_plugin_extensible_metadata['config_xmp_fields'] . $plugin_help, 5);
+    starttable('100%', $lang_plugin_extensible_metadata['config_name'] . " - " . $lang_plugin_extensible_metadata['config_xmp_fields'] . $plugin_help, 5, 'xmp-field-table');
 
     echo <<<EOT
 	<tr>
