@@ -14,6 +14,6 @@ if (!defined('IN_COPPERMINE')) die('Not in Coppermine...');
 $name               = $lang_plugin_extensible_metadata['config_name'];
 $description        = $lang_plugin_extensible_metadata['config_description'];
 $author             = 'Dan Paulat <dpaulat@gmail.com>';
-$version            = '0.1';
+$version            = '0.2';
 $plugin_cpg_version = array('min' => '1.6');
 $config_action      = 'config';
