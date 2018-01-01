@@ -77,7 +77,7 @@ function xmp_plugin_install()
 
     // Populate default status
     $result = cpg_db_query(
-        "INSERT IGNORE INTO `cpg16x_plugin_xmp_status`
+        "INSERT IGNORE INTO `{$CONFIG['TABLE_PREFIX']}plugin_xmp_status`
             (`id`, `last_refresh`, `index_dirty`)
          VALUES (b'0', NULL, 0)");
     if ($result === FALSE) {

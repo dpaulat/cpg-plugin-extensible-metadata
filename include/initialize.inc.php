@@ -204,6 +204,8 @@ class ExtensibleMetadata
 
     function process_delete($pic)
     {
+        global $CONFIG;
+
         // Delete XMP file
         $xmp = new XmpProcessor($pic['filepath'], $pic['filename']);
         if ($xmp->sidecarExists()) {
@@ -211,7 +213,7 @@ class ExtensibleMetadata
         }
 
         // Delete from index
-        cpg_db_query("DELETE FROM `cpg16x_plugin_xmp_index` WHERE `pid` = '{$pic['pid']}'");
+        cpg_db_query("DELETE FROM `{$CONFIG['TABLE_PREFIX']}plugin_xmp_index` WHERE `pid` = '{$pic['pid']}'");
     }
 
     function populate_index($search_insert_values)
