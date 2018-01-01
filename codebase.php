@@ -183,7 +183,14 @@ function xmp_file_info($info)
                 $field_name = $field['name'];
             }
             foreach ($elements as $element) {
-                $xmp_links[] = '<a href="thumbnails.php?album=search&amp;xmp=on&amp;search=' . urlencode($element) . '">' . htmlspecialchars($element) . '</a>';
+                $xmp_link = htmlspecialchars($element);
+
+                // Add a search link if the field is indexed
+                if ($field['indexed'] === '1') {
+                    $xmp_link = '<a href="thumbnails.php?album=search&amp;xmp=on&amp;search=' . urlencode($element) . '">' . $xmp_link . '</a>';
+                }
+
+                $xmp_links[] = $xmp_link;
             }
             $xmp_info[$field_name] = implode('<br/>', $xmp_links);
         }
