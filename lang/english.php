@@ -12,7 +12,7 @@ as published by the Free Software Foundation.
 if (!defined('IN_COPPERMINE')) die('Not in Coppermine...');
 
 $lang_plugin_extensible_metadata['config_name'] = 'Extensible Metadata';
-$lang_plugin_extensible_metadata['config_description'] = 'Extensible Metadata';
+$lang_plugin_extensible_metadata['config_description'] = 'The Extensible Metadata plugin is designed for Coppermine Gallery 1.6.x. Coppermine Gallery has built-in support for EXIF and IPTC metadata, but lacks support for XMP. This plugin allows for the generation of XMP sidecar files containing additional metadata. The metadata fields can then be selectively used for display with the images, or added to a search index.';
 $lang_plugin_extensible_metadata['config_refresh_metadata'] = 'Refresh Metadata';
 $lang_plugin_extensible_metadata['config_overwrite_sidecar'] = 'Overwrite XMP Sidecar Files';
 $lang_plugin_extensible_metadata['config_cancel_refresh'] = 'Cancel Refresh';
